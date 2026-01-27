@@ -1,0 +1,12 @@
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 450
+FPS = 60
+
+GRAVITY = 0.5       # 少しふわっとさせる
+JUMP_POWER = -8     # 連打で高度を維持できる強さ
+SCROLL_SPEED = 6
+
+# 色
+BG_COLOR = (10, 10, 20)
+PLAYER_COLOR = (0, 255, 200)
+WALL_COLOR = (100, 100, 120)
