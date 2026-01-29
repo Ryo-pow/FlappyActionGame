@@ -1,5 +1,5 @@
 import pygame
-from settings import *
+from settings import SCREEN_WIDTH, SCREEN_HEIGHT, BG_COLOR, FPS
 from player import Player
 from obstacle import Obstacle
 
@@ -16,13 +16,13 @@ class Game:
     def reset_game(self):
         """ゲームプレイ開始時の初期化ロジック"""
         self.all_sprites = pygame.sprite.Group()
-        self.walls = pygame.sprite.Group() 
-        self.player = Player(self.all_sprites)        
+        self.walls = pygame.sprite.Group()
+        self.player = Player(self.all_sprites)
         self.score = 0
         self.wall_timer = pygame.USEREVENT + 1
-        
+
         # モードに応じた生成間隔
-        spawn_rate = 800 if self.mode == "spike" else 1200 
+        spawn_rate = 800 if self.mode == "spike" else 1200
         pygame.time.set_timer(self.wall_timer, spawn_rate)
 
     def handle_events(self):
@@ -30,7 +30,7 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-            
+
             if self.state == "SELECT":
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_1:
@@ -44,7 +44,6 @@ class Game:
 
             elif self.state == "PLAYING":
                 if event.type == self.wall_timer:
-                    # groups引数は *可変長引数に対応させるためリストを外す
                     Obstacle(self.all_sprites, self.walls, is_top=True, mode=self.mode)
                     Obstacle(self.all_sprites, self.walls, is_top=False, mode=self.mode)
                 if event.type == pygame.KEYDOWN:
@@ -59,16 +58,14 @@ class Game:
         """状態の更新ロジック"""
         if self.state == "PLAYING":
             self.all_sprites.update()
-            # 衝突判定と画面外判定
-            if pygame.sprite.spritecollide(self.player, self.walls, False, pygame.sprite.collide_mask) or \
-               self.player.rect.top <= 0 or self.player.rect.bottom >= SCREEN_HEIGHT:
-                self.state = "GAMEOVER"
+            if (pygame.sprite.spritecollide(self.player, self.walls, False, pygame.sprite.collide_mask) or self.player.rect.top <= 0 or self.player.rect.bottom >= SCREEN_HEIGHT):
+               self.state = "GAMEOVER"
             self.score += 1
 
     def draw(self):
         """描画ロジックを統合"""
         self.screen.fill(BG_COLOR)
-        
+
         if self.state == "SELECT":
             self.draw_select_screen()
         elif self.state == "PLAYING":
@@ -77,7 +74,7 @@ class Game:
             self.screen.blit(score_surf, (10, 10))
         elif self.state == "GAMEOVER":
             self.draw_game_over()
-            
+
         pygame.display.flip()
 
     def draw_select_screen(self):
