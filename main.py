@@ -12,6 +12,10 @@ class Game:
         self.state = "SELECT"
         self.mode = "square"
         self.running = True
+        self.player = None
+        self.score = 0
+        self.wall_timer = 0
+        self.reset_game()
 
     def reset_game(self):
         """ゲームプレイ開始時の初期化ロジック"""
@@ -30,36 +34,55 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+                return
 
             if self.state == "SELECT":
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_1:
-                        self.mode = "square"
-                        self.state = "PLAYING"
-                        self.reset_game()
-                    if event.key == pygame.K_2:
-                        self.mode = "spike"
-                        self.state = "PLAYING"
-                        self.reset_game()
-
+                self._handle_select_events(event)
             elif self.state == "PLAYING":
-                if event.type == self.wall_timer:
-                    Obstacle(self.all_sprites, self.walls, is_top=True, mode=self.mode)
-                    Obstacle(self.all_sprites, self.walls, is_top=False, mode=self.mode)
-                if event.type == pygame.KEYDOWN:
-                    if event.key in [pygame.K_SPACE, pygame.K_UP]:
-                        self.player.jump()
-
+                self._handle_playing_events(event)
             elif self.state == "GAMEOVER":
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                    self.state = "SELECT"
+                self._handle_gameover_events(event)
+
+    def _handle_select_events(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_1:
+                self.mode = "square"
+                self.state = "PLAYING"
+                self.reset_game()
+            elif event.key == pygame.K_2:
+                self.mode = "spike"
+                self.state = "PLAYING"
+                self.reset_game()
+
+    def _handle_playing_events(self, event):
+        """プレイ中のイベント処理"""
+        if self.player is None:
+            return
+        if event.type == self.wall_timer:
+            Obstacle(self.all_sprites, self.walls, is_top=True, mode=self.mode)
+            Obstacle(self.all_sprites, self.walls, is_top=False, mode=self.mode)
+        elif event.type == pygame.KEYDOWN:
+            if event.key in [pygame.K_SPACE, pygame.K_UP]:
+                self.player.jump()
+
+    def _handle_gameover_events(self, event):
+        """ゲームオーバー画面のイベント処理"""
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            self.state = "SELECT"
 
     def update(self):
         """状態の更新ロジック"""
         if self.state == "PLAYING":
+            if self.player is None:
+                return
             self.all_sprites.update()
-            if (pygame.sprite.spritecollide(self.player, self.walls, False, pygame.sprite.collide_mask) or self.player.rect.top <= 0 or self.player.rect.bottom >= SCREEN_HEIGHT):
-               self.state = "GAMEOVER"
+            hit_wall = pygame.sprite.spritecollide(
+                self.player, self.walls, False, pygame.sprite.collide_mask
+            )
+            hit_screen_edge = self.player.rect.top <= 0 or self.player.rect.bottom >= SCREEN_HEIGHT
+
+            if hit_wall or hit_screen_edge:
+                self.state = "GAMEOVER"
             self.score += 1
 
     def draw(self):

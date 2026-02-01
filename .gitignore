@@ -1,6 +1,6 @@
 venv/
 .venv/
 __pycache__/
-DS_Store
 .vscode/
 .pylintrc
+.DS_Store

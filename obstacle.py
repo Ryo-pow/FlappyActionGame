@@ -43,10 +43,21 @@ class Obstacle(pygame.sprite.Sprite):
         if self.mode == "square":
             if self.is_top:
                 pygame.draw.rect(self.image, color, (0, 0, self.width, gap_top))
-                pygame.draw.rect(self.image,(255, 255, 255),(0, 0, self.width, gap_top),1)
+                pygame.draw.rect(
+                    self.image,(255, 255, 255),(0, 0, self.width, gap_top), 1
+                )
             else:
-                pygame.draw.rect(self.image, color, (0, gap_bottom, self.width, SCREEN_HEIGHT - gap_bottom))
-                pygame.draw.rect(self.image, (255, 255, 255), (0, gap_bottom, self.width, SCREEN_HEIGHT - gap_bottom),1)
+                pygame.draw.rect(
+                    self.image,
+                    color,
+                    (0, gap_bottom, self.width, SCREEN_HEIGHT - gap_bottom)
+                )
+                pygame.draw.rect(
+                    self.image,
+                    (255, 255, 255),
+                    (0, gap_bottom, self.width, SCREEN_HEIGHT - gap_bottom),
+                    1
+                )
 
         elif self.mode == "spike":
             offset = math.sin(self.timer) * self.move_range
